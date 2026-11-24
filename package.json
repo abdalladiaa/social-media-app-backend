@@ -1,0 +1,46 @@
+{
+  "name": "folderStructure",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/server.js",
+  "scripts": {
+    "dev": "concurrently \"tsc -w\" \"cross-env NODE_ENV=dev node --watch .\"",
+    "start:dev": "concurrently \"tsc -w\" \"cross-env NODE_ENV=dev node .\"",
+    "start:prod": "cross-env NODE_ENV=prod node ."
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
+    "@types/cookie-parser": "^1.4.10",
+    "@types/crypto-js": "^4.2.2",
+    "@types/express": "^5.0.6",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/multer": "^2.3.0",
+    "@types/node": "^26.6.6",
+    "@types/nodemailer": "^8.0.2",
+    "concurrently": "^10.0.7"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.1175.0",
+    "bcrypt": "^6.0.0",
+    "cookie-parser": "^1.4.7",
+    "cross-env": "^10.1.0",
+    "crypto": "^1.0.1",
+    "crypto-js": "^4.2.0",
+    "dotenv": "^18.0.10",
+    "express": "^5.3.0",
+    "file-type": "^22.3.0",
+    "firebase-admin": "^14.5.1",
+    "google-auth-library": "^11.3.4",
+    "ioredis": "^6.0.0",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.12.2",
+    "multer": "^2.5.0",
+    "node-mailjet": "^6.0.11",
+    "nodemailer": "^10.6.0",
+    "zod": "^4.6.7"
+  }
+}
