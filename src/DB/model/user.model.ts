@@ -1,6 +1,7 @@
-import mongoose from "mongoose";
+import mongoose, { Types } from "mongoose";
 import { GenderEnum, ProviderEnum } from "../../lib/types/enum/user.enum.js";
 import type { IUser } from "../../lib/types/interfaces/user.interface.js";
+import securityService from "../../lib/services/security.service.js";
 
 const userSchema = new mongoose.Schema<IUser>(
   {
@@ -41,10 +42,10 @@ const userSchema = new mongoose.Schema<IUser>(
       required: function (this: IUser) {
         return this.provider === ProviderEnum.LOCAL;
       },
+      select: false,
     },
     profilePicture: {
       type: String,
-      
     },
     gender: {
       type: Number,
@@ -64,6 +65,15 @@ const userSchema = new mongoose.Schema<IUser>(
       enum: ProviderEnum,
       default: ProviderEnum.LOCAL,
     },
+    followers: {
+      type: [{ type: Types.ObjectId, ref: "User" }],
+      default: [],
+    },
+
+    following: {
+      type: [{ type: Types.ObjectId, ref: "User" }],
+      default: [],
+    },
   },
   {
     timestamps: true,
@@ -79,6 +89,34 @@ const userSchema = new mongoose.Schema<IUser>(
   },
 );
 
-const User = mongoose.models.User as mongoose.Model<IUser> || mongoose.model<IUser>("User", userSchema);
+userSchema.pre("save", async function () {
+  const isPasswordModified = this.isModified("password");
+  const isPhoneNumberModified = this.isModified("phone");
+
+  if (isPasswordModified)
+    this.password = await securityService.hashPassword(this.password!);
+
+  if (isPhoneNumberModified && this.phone)
+    this.phone = securityService.encrypt(this.phone);
+});
+
+userSchema.post(["findOne", "find"], function (result: IUser | IUser[]) {
+  if (!result) return;
+  if (Array.isArray(result)) {
+    result.forEach((doc) => {
+      if (doc.phone) {
+        doc.phone = securityService.decrypt(doc.phone);
+      }
+    });
+  } else {
+    if (result.phone) {
+      result.phone = securityService.decrypt(result.phone);
+    }
+  }
+});
+
+const User =
+  (mongoose.models.User as mongoose.Model<IUser>) ||
+  mongoose.model<IUser>("User", userSchema);
 
 export default User;

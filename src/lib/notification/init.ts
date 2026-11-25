@@ -1,7 +1,7 @@
 import { NodeMailerProvider } from "../../pkg/notification/nodeMailer.js";
 import config from "../config/config.js";
 
-const sendMailClient = new NodeMailerProvider({
+const sendNotificationClient = new NodeMailerProvider({
     user: config.nodeMailer.email,
     pass:config.nodeMailer.password,
     fromName:"Social Media App",
@@ -9,4 +9,4 @@ const sendMailClient = new NodeMailerProvider({
     service:"gmail"
 })
 
-export default sendMailClient;
+export default sendNotificationClient;

@@ -1,16 +1,20 @@
 import type { NextFunction, Request, Response } from "express";
-import authService, { AuthService } from "./auth.service.js";
 import { successResponse } from "../../lib/utils/response/success.response.js";
-import tokenService, {
-  TokenServices,
-} from "../../lib/services/token.service.js";
+import type { TokenServices } from "../../lib/services/token.service.js";
 import { TokenTypeEnum } from "../../lib/types/enum/token.enum.js";
+import { inject, injectable } from "tsyringe";
+import { CONTAINER_TOKENS } from "../../lib/constants/di-tokens.constants.js";
+import type { AuthService } from "./auth.service.js";
+import type { UserPayload } from "../../lib/types/interfaces/userPayload.interface.js";
 
-class AuthController {
-  private readonly authService: AuthService = authService;
-  private readonly tokenService: TokenServices = tokenService;
-
-  constructor() {}
+@injectable()
+export class AuthController {
+  constructor(
+    @inject(CONTAINER_TOKENS.services.authService)
+    private readonly authService: AuthService,
+    @inject(CONTAINER_TOKENS.utils.tokenService)
+    private readonly tokenService: TokenServices,
+  ) {}
 
   register = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -54,7 +58,7 @@ class AuthController {
 
   login = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const tokens = await authService.login(req.body);
+      const tokens = await this.authService.login(req.body);
 
       if (!tokens) {
         successResponse({
@@ -64,12 +68,12 @@ class AuthController {
         return;
       }
 
-      tokenService.saveTokenInCookie(
+      this.tokenService.saveTokenInCookie(
         res,
         tokens.accessToken,
         TokenTypeEnum.ACCESS_TOKEN,
       );
-      tokenService.saveTokenInCookie(
+      this.tokenService.saveTokenInCookie(
         res,
         tokens.refreshToken,
         TokenTypeEnum.REFRESH_TOKEN,
@@ -114,6 +118,45 @@ class AuthController {
       next(err);
     }
   };
-}
 
-export default new AuthController();
+  loginWithGoogle = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { idToken } = req.body;
+
+      const { accessToken, refreshToken } =
+        await this.authService.logInWithGoogle(idToken);
+      const user = this.tokenService.decodeToken(accessToken);
+
+      this.tokenService.saveTokenInCookie(res, accessToken);
+      this.tokenService.saveTokenInCookie(
+        res,
+        refreshToken,
+        TokenTypeEnum.REFRESH_TOKEN,
+      );
+
+      successResponse({
+        res,
+        status: 200,
+        message: "user logged in successfully",
+        data: {
+          user,
+          accessToken,
+          refreshToken,
+        },
+      });
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  revokeToken = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const user = req.user as UserPayload;
+
+      const result = await this.authService.revokeToken(user);
+      successResponse({ res, status: 200, data: { result } });
+    } catch (err) {
+      next(err);
+    }
+  };
+}

@@ -27,7 +27,7 @@ export default abstract class Repository<T> {
     return this.model.deleteOne({ _id: id });
   }
 
-  async findById(id: Types.ObjectId, projection?: ProjectionType<T> | null): Promise<HydratedDocument<T> | null> {
+  async findById(id: Types.ObjectId | string, projection?: ProjectionType<T> | null): Promise<HydratedDocument<T> | null> {
     if (!isValidObjectId(id)) {
       throw new AppError("Invalid object id", 500);
     }

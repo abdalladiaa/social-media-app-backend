@@ -1,6 +1,29 @@
-import type { Request, Response, NextFunction } from "express";
+import type { Request, Response, NextFunction, RequestHandler } from "express";
 import AppError from "../pkg/error/error.js";
 import { fileTypeFromBuffer } from "file-type";
+import type { ZodType } from "zod";
+
+type SourceTpe = "body" | "params";
+
+export function validateDto<T>(
+  dto: ZodType<T>,
+  source: SourceTpe = "body",
+): RequestHandler {
+  return (req: Request, res: Response, next: NextFunction): void => {
+    const result = dto.safeParse(req[source]);
+
+    if (!result.success) {
+      const errMsgs = result.error.issues
+        .map((issue) => `${issue.path.join(".")} : ${issue.message}`)
+        .join(", ");
+
+      return next(new AppError(errMsgs, 400));
+    }
+
+    req[source] = result.data;
+    next();
+  };
+}
 
 export function fileValidationMiddleware(allowedTypes: string | string[]) {
   const types = Array.isArray(allowedTypes) ? allowedTypes : [allowedTypes];

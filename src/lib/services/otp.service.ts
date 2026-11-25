@@ -15,7 +15,7 @@ interface CreateOtpOptions {
   emailType?: OtpSendEmailEnum;
 }
 
-class OtpService {
+export class OtpService {
   async generateOtp() {
     return crypto.randomInt(100000, 1000000);
   }

@@ -10,16 +10,23 @@ const postSchema = new mongoose.Schema<IPost>(
       minLength: 1,
       maxLength: 200,
     },
+    attachmentPath: {
+      type: String,
+    },
     userId: {
       type: Types.ObjectId,
       ref: "User",
       required: true,
     },
-    commentsCount: {
+    isDeleted: {
+      type: Boolean,
+      default: false,
+    },
+    commentCounts: {
       type: Number,
       default: 0,
     },
-    reactsCount: {
+    reactionCounts: {
       type: Number,
       default: 0,
     },

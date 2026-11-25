@@ -4,13 +4,14 @@ import authError from "../../modules/auth/auth.error.js";
 import config from "../config/config.js";
 import { TokenTypeEnum } from "../types/enum/token.enum.js";
 import type { UserPayload } from "../types/interfaces/userPayload.interface.js";
+import { UnAuthorizedException } from "../error/exception.error.js";
 
 export class TokenServices {
   decodeToken(token: string) {
     try {
       return jwt.decode(token);
     } catch (err) {
-      throw authError.invalidAccessToken();
+      throw new UnAuthorizedException(authError.invalidAccessToken);
     }
   }
 
@@ -74,13 +75,13 @@ export class TokenServices {
     try {
       payload = jwt.verify(token, secret) as UserPayload;
     } catch (err) {
-      throw authError.invalidAccessToken();
+      throw new UnAuthorizedException(authError.invalidAccessToken);
     }
 
     if (typeof payload === "string" || payload.type !== tokenType) {
       throw tokenType === TokenTypeEnum.ACCESS_TOKEN
-        ? authError.invalidAccessToken()
-        : authError.invalidRefreshToken();
+        ? new UnAuthorizedException(authError.invalidAccessToken)
+        : new UnAuthorizedException(authError.invalidRefreshToken);
     }
     return payload;
   }

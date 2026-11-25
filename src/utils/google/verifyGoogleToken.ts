@@ -1,6 +1,7 @@
 // import { OAuth2Client } from "google-auth-library";
 // import config from "../../lib/config/config.js";
 // import userError from "../../modules/user/user.error.js";
+// import { UnAuthorizedException } from "../../lib/error/exception.error.js";
 // import { logger } from "../../pkg/log/logger.js";
 
 // const client = new OAuth2Client(config.google.clientId);
@@ -16,6 +17,6 @@
 //     logger.error("Google token verification failed", {
 //       reason: "invalid_or_expired_google_id_token",
 //     });
-//     throw userError.invalidGoogleToken();
+//     throw new UnAuthorizedException(userError.invalidGoogleToken);
 //   }
 // };

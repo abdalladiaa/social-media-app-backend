@@ -30,6 +30,9 @@ const config = {
     s3AccessKey: process.env.S3_ACCESS_KEY as string,
     s3SecretKey: process.env.S3_SECRET_KEY as string,
   },
+  google:{
+    clientId:process.env.GOOGLE_CLIENT_ID as string
+  }
 };
 
 export default config;
